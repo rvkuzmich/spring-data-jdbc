@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.kuzmich.springdatajdbc.model.Book;
 import ru.kuzmich.springdatajdbc.repository.BookRepository;
 import ru.kuzmich.springdatajdbc.service.BookService;
+import ru.kuzmich.springdatajdbc.utils.BookValidator;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Book createBook(Book book) {
-        validateBook(book);
+        BookValidator.validateBook(book);
         return bookRepository.save(book);
     }
 
@@ -40,7 +41,7 @@ public class BookServiceImpl implements BookService {
             book.setAuthor(bookDetails.getAuthor());
             book.setPublicationYear(bookDetails.getPublicationYear());
 
-            validateBook(book);
+            BookValidator.validateBook(book);
 
             return bookRepository.update(book);
         }
@@ -56,19 +57,5 @@ public class BookServiceImpl implements BookService {
     @Override
     public boolean bookExists(Long id) {
         return bookRepository.existsById(id);
-    }
-
-    private void validateBook(Book book) {
-        if (book.getTitle() == null || book.getTitle().trim().isEmpty()) {
-            throw new IllegalArgumentException("Book title can not be empty");
-        }
-        if (book.getAuthor() == null || book.getAuthor().trim().isEmpty()) {
-            throw new IllegalArgumentException("Book author can not be empty");
-        }
-        int currentYear = java.time.Year.now().getValue();
-        if (book.getPublicationYear() < 0 || book.getPublicationYear() > currentYear) {
-            throw new IllegalArgumentException(
-                "Publication year must be between 0 and " + currentYear);
-        }
     }
 }
